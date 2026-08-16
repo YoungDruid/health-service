@@ -14,7 +14,7 @@ Response:
 
 ### Star task
 
-GET /otusapp/YoungDruid/health
+GET /otusapp/Nurym/health
 
 Ingress rewrites the request to:
 
