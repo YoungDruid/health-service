@@ -52,3 +52,13 @@ Check:
 kubectl get pods
 kubectl get svc
 kubectl get ingress
+
+# Start ingress tunnel
+minikube service nginx-ingress-nginx-controller -n m --url
+
+# Run API tests
+newman run postman/health-service.postman_collection.json \
+-e postman/minikube.postman_environment.json
+
+# Remove application
+kubectl delete -f k8s/
