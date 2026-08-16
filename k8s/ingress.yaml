@@ -11,7 +11,7 @@ spec:
     - host: arch.homework
       http:
         paths:
-          - path: /otusapp/YoungDruid(/|$)(.*)
+          - path: /otusapp/Nurym(/|$)(.*)
             pathType: ImplementationSpecific
             backend:
               service:
