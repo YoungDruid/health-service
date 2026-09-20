@@ -1,0 +1,59 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: database-migration
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+
+      containers:
+        - name: migration
+          image: postgres:18
+
+          env:
+            - name: PGHOST
+              valueFrom:
+                configMapKeyRef:
+                  name: health-service-config
+                  key: DB_HOST
+
+            - name: PGPORT
+              valueFrom:
+                configMapKeyRef:
+                  name: health-service-config
+                  key: DB_PORT
+
+            - name: PGDATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: health-service-config
+                  key: DB_NAME
+
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: health-service-secret
+                  key: DB_USERNAME
+
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: health-service-secret
+                  key: DB_PASSWORD
+
+          command:
+            - /bin/sh
+            - -c
+            - psql -f /migration/001-create-users.sql
+
+          volumeMounts:
+            - name: migration
+              mountPath: /migration
+
+      volumes:
+        - name: migration
+          configMap:
+            name: database-migration
+
+  backoffLimit: 3
