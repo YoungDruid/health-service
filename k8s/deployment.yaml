@@ -17,10 +17,14 @@ spec:
     spec:
       containers:
         - name: health-service
-          image: lifeharden/health-service:1.1
+          image: lifeharden/health-service:2.0
           ports:
             - containerPort: 8000
-
+          envFrom:
+            - configMapRef:
+                name: health-service-config
+            - secretRef:
+                name: health-service-secret
           livenessProbe:
             httpGet:
               path: /health/
