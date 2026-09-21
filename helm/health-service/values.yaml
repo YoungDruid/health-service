@@ -1,0 +1,27 @@
+replicaCount: 2
+
+image:
+  repository: lifeharden/health-service
+  tag: "2.0"
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: nginx
+  host: arch.homework
+
+config:
+  dbHost: postgres-postgresql
+  dbPort: "5432"
+  dbName: users
+
+secret:
+  dbUsername: appuser
+  dbPassword: apppassword
+
+probes:
+  path: /health
