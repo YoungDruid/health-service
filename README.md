@@ -350,3 +350,75 @@ postgres/
 postman/
 └── users.postman_collection.json
 ```
+## ⭐ Star Task — Helm Chart
+
+The application can also be deployed using Helm.
+
+Helm chart location:
+
+```text
+helm/health-service
+```
+
+The chart templates the following Kubernetes resources:
+
+- ConfigMap
+- Secret
+- Deployment
+- Service
+- Ingress
+
+Application configuration is defined in:
+
+```text
+helm/health-service/values.yaml
+```
+
+### Install application with Helm
+
+Before installing the application, PostgreSQL and database migrations must be deployed as described above.
+
+Install the application:
+
+```bash
+helm install health-service ./helm/health-service
+```
+
+Check the release:
+
+```bash
+helm list
+```
+
+Check application pods:
+
+```bash
+kubectl get pods
+```
+
+Wait for the deployment:
+
+```bash
+kubectl rollout status deployment/health-service
+```
+
+### Upgrade application
+
+After changing `values.yaml` or Helm templates:
+
+```bash
+helm upgrade health-service ./helm/health-service
+```
+
+For example, replica count can be overridden without modifying `values.yaml`:
+
+```bash
+helm upgrade health-service ./helm/health-service \
+  --set replicaCount=3
+```
+
+### Uninstall application
+
+```bash
+helm uninstall health-service
+```
