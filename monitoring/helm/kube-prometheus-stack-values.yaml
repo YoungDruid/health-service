@@ -1,0 +1,16 @@
+alertmanager:
+  enabled: false
+
+grafana:
+  enabled: false
+
+prometheusConfigReloader:
+  image:
+    tag: v0.94.2
+
+prometheusOperator:
+  image:
+    tag: v0.94.2
+  prometheusConfigReloader:
+    image:
+      tag: v0.94.2
