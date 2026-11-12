@@ -1,0 +1,18 @@
+auth:
+  database: users
+  username: appuser
+  password: apppassword
+
+metrics:
+  enabled: true
+  image:
+    digest: sha256:d196b49967ab556479842900927c87ece1333dfe74b964693c098a25f6d0f1b5
+  serviceMonitor:
+    enabled: true
+    labels:
+      release: kps
+
+primary:
+  persistence:
+    enabled: true
+    size: 1Gi

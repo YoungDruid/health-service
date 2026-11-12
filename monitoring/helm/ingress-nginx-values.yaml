@@ -1,0 +1,15 @@
+controller:
+  hostPort:
+    enabled: false
+    ports:
+      http: 80
+      https: 443
+  kind: DaemonSet
+  metrics:
+    enabled: true
+    service:
+      enabled: true
+  reportNodeInternalIp: true
+
+service:
+  type: NodePort

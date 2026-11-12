@@ -135,9 +135,10 @@ kubectl create namespace m
 Install Nginx Ingress Controller:
 
 ```bash
-helm install nginx ingress-nginx/ingress-nginx \
+helm upgrade --install nginx ingress-nginx/ingress-nginx \
   --namespace m \
-  --version 4.15.1
+  --version 4.15.1 \
+  -f monitoring/helm/ingress-nginx-values.yaml
 ```
 
 Check:
@@ -164,9 +165,11 @@ postgres/values.yaml
 Install PostgreSQL:
 
 ```bash
-helm install postgres bitnami/postgresql \
+helm upgrade --install postgres bitnami/postgresql \
+  --namespace default \
   --version 18.11.5 \
-  -f postgres/values.yaml
+  -f postgres/values.yaml \
+  -f monitoring/helm/postgresql-values.yaml
 ```
 
 Wait until PostgreSQL is ready:
@@ -422,3 +425,70 @@ helm upgrade health-service ./helm/health-service \
 ```bash
 helm uninstall health-service
 ```
+## Prometheus monitoring
+
+Install Prometheus Operator and Kubernetes exporters with the pinned Helm chart:
+
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+helm upgrade --install kps prometheus-community/kube-prometheus-stack \
+  --version 93.1.1 \
+  --namespace monitoring \
+  --create-namespace \
+  -f monitoring/helm/kube-prometheus-stack-values.yaml
+```
+
+Upgrade the application chart so its Service exposes the named `http` port:
+
+```bash
+helm upgrade --install health-service ./helm/health-service \
+  --namespace default
+```
+
+Apply the ServiceMonitors:
+
+```bash
+kubectl apply -f monitoring/manifests/health-service-servicemonitor.yaml
+kubectl apply -f monitoring/manifests/ingress-nginx-servicemonitor.yaml
+```
+
+The PostgreSQL Helm values enable its exporter and ServiceMonitor.
+
+Check Prometheus and ServiceMonitor resources:
+
+```bash
+kubectl get pods -n monitoring
+kubectl get servicemonitor -A
+```
+
+Start the required port-forwards in separate terminals:
+
+```bash
+kubectl port-forward -n default svc/health-service 8000:8000
+```
+
+```bash
+kubectl port-forward -n m \
+  svc/nginx-ingress-nginx-controller-metrics 10254:10254
+```
+
+```bash
+kubectl port-forward -n monitoring \
+  svc/kps-kube-prometheus-stack-prometheus 19090:9090
+```
+
+If Prometheus and Grafana are already running as standalone Docker containers, stop them before the first Compose start:
+
+```bash
+docker stop prometheus grafana
+```
+
+Start Prometheus and Grafana from the repository root:
+
+```bash
+docker compose -f monitoring/docker-compose.yml up -d
+```
+
+Open Grafana at http://localhost:3000. The dashboard and Prometheus data sources are loaded from the files in `monitoring/grafana`.
